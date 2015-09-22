@@ -17,7 +17,7 @@ namespace FieldFox_1
         string hostName = "192.168.0.1";
         TelnetConnection tc = new TelnetConnection();
         string basicPath = @"C:\FieldFox";
-        int sleepTime = 60; //ms
+        int sleepTime = 60; //ms minus 20 ms to save the files
 
 
         public Form1()
