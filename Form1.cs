@@ -17,6 +17,7 @@ namespace FieldFox_1
         string hostName = "192.168.0.1";
         TelnetConnection tc = new TelnetConnection();
         string basicPath = @"C:\FieldFox";
+        int sleepTime = 60; //ms
 
 
         public Form1()
@@ -85,6 +86,9 @@ namespace FieldFox_1
 
         private void Measure_button_Click(object sender, EventArgs e)
         {
+            int switchFolderFilesNumber = 100;
+            int folderNumber = 0;
+
             if (Folder_name_textBox.Text.Length < 4)
             {
                 System.Windows.Forms.MessageBox.Show("You have to enter valid test name!");
@@ -107,39 +111,53 @@ namespace FieldFox_1
                         string pathString = System.IO.Path.Combine(basicPath, folderName);
                         Directory.CreateDirectory(pathString);
 
-                        //Move to folder
-                        Write("MMEM:CDIR \"[INTERNAL]:\\" + folderName + "\"");
-
                         //Save files
                         DateTime finalTime = DateTime.Now.AddSeconds(Convert.ToDouble(Meas_time_textBox.Text));
                         int ind = 0;
                         while (DateTime.Now<finalTime)
                         {
-                            string fileName = DateTime.Now.ToString("HHmmssffff") + ind.ToString() +".s2p";
+                            if ((ind % switchFolderFilesNumber) == 0)
+                            {
+                                Write("MMEMory:MDIRectory \"[INTERNAL]:\\" + folderName + "\\" + folderNumber.ToString() + "\"");
+                                
+                                //Move to temp folder
+                                Write("MMEM:CDIR \"[INTERNAL]:\\" + folderName + "\\" + folderNumber.ToString() + "\"");
+                                folderNumber++;
+                            }
+                            string fileName = DateTime.Now.ToString("HHmmssffff") + "_" + ind.ToString() +".s2p";
+
                             Write("MMEMory:STORe:SNP \"" + fileName + "\"");
                             ind++;
-                            Thread.Sleep(10); //sleep 10 ms
+                            Thread.Sleep(sleepTime); //sleep in ms
                         }
-                        //Get files list
-                        string fileList = Write("MMEM:CAT?");
-                        List<string> names = fileList.Split(',').ToList<string>();
+                        Log_textBox.AppendText("Going to sleep 10 seconds before start uploading the files");
+                        Thread.Sleep(10 * 1000);
 
-                        //Copy file to PC
-                        foreach (string fileName in names)
+                        //Iterate over the temporary folders
+                        for (int tempFolder = 0; tempFolder <= folderNumber; tempFolder++)
                         {
-                            if (fileName.Contains("s2p"))
+                            Write("MMEM:CDIR \"[INTERNAL]:\\" + folderName + "\\" + tempFolder.ToString() + "\"");
+                            //Get files list
+                            string fileList = Write("MMEM:CAT?");
+                            List<string> names = fileList.Split(',').ToList<string>();
+
+                            //Copy file to PC
+                            foreach (string fileName in names)
                             {
-                                string cleanFileName = fileName.Replace("\"", "").Replace("\\", "");
-                                string cmd = "MMEM:DATA? \"" + cleanFileName + "\"";
-                                var temp = Write(cmd,false);
-                                FileStream fs1 = new FileStream(pathString + "\\" + cleanFileName, FileMode.OpenOrCreate, FileAccess.Write);
-                                StreamWriter writer = new StreamWriter(fs1);
-                                writer.Write(temp);
-                                writer.Close();
+                                if (fileName.Contains("s2p"))
+                                {
+                                    string cleanFileName = fileName.Replace("\"", "").Replace("\\", "");
+                                    string cmd = "MMEM:DATA? \"" + cleanFileName + "\"";
+                                    var temp = Write(cmd, false);
+                                    FileStream fs1 = new FileStream(pathString + "\\" + cleanFileName, FileMode.OpenOrCreate, FileAccess.Write);
+                                    StreamWriter writer = new StreamWriter(fs1);
+                                    writer.Write(temp);
+                                    writer.Close();
+                                }
                             }
                         }
-
                         //Remove the folder on NA                        
+                        
                         Write("MMEM:CDIR \"[INTERNAL]:\\\"");
                         Write("MMEM:RDIR \"" + folderName + "\",\"recursive\"");
                     }
@@ -196,7 +214,7 @@ namespace FieldFox_1
         NetworkStream m_Stream;
         bool m_IsOpen = false;
         string m_Hostname;
-        int m_ReadTimeout = 1000; // ms
+        int m_ReadTimeout = 10000; // ms
         public delegate void ConnectionDelegate();
         public event ConnectionDelegate Opened;
         public event ConnectionDelegate Closed;
