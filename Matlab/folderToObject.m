@@ -31,9 +31,12 @@ function [ ret_obj ] = folderToObject( folder_name )
         xlabel('Time [sec]'); ylabel('Phase [deg]'); legend(cellstr(strcat(num2str(freqs),' MHz')));
         savefig(amp_fig,[folder_name,'\amp_fig']);
         savefig(phs_fig,[folder_name,'\phs_fig']);
-        save([folder_name,'\data.mat'],'time_sec','amp_db','time_sec','phase_deg','freqs');
     end
-
+    save([folder_name,'\data.mat'],'time_sec','amp_db','phase_deg','freqs');
+    ret_obj.time_sec=time_sec;
+    ret_obj.amp_db=amp_db;
+    ret_obj.phase_deg=phase_deg;
+    ret_obj.freqs=freqs;
 end
 
 function ret_time = FileNameToMili(file_name)
