@@ -53,6 +53,7 @@ namespace FieldFox_1
 
                     Write("SYST:PRES;*OPC?");
                     Write("*IDN?");
+                    Write("CALC:PAR:DEF S21");
                     Write("SENS:FREQ:START " + (Convert.ToInt32(Start_Freq_textBox.Text) * 1e6).ToString());
                     Write("SENS:FREQ:STOP " + (Convert.ToInt32(End_Freq_textBox.Text) * 1e6).ToString());
                     Write("SENS:SWEEP:POINTS " + (Convert.ToInt32(Points_num_textBox.Text)).ToString());
@@ -63,6 +64,8 @@ namespace FieldFox_1
                         avgMode = "POINT";
                     }
                     Write("AVERage:MODE " + avgMode);
+                    Thread.Sleep(3000);
+                    Write("DISP:WIND:TRAC1:Y:AUTO");
                     Write("SYST:ERR?");
 
                     tc.Dispose();
@@ -86,7 +89,7 @@ namespace FieldFox_1
 
         private void Measure_button_Click(object sender, EventArgs e)
         {
-            int switchFolderFilesNumber = 100;
+            int switchFolderFilesNumber = 50;
             int folderNumber = 0;
 
             if (Folder_name_textBox.Text.Length < 4)
@@ -199,6 +202,11 @@ namespace FieldFox_1
                 Log_textBox.AppendText(exep.ToString() + "\n");
             }
             return res;
+        }
+
+        private void Log_textBox_TextChanged(object sender, EventArgs e)
+        {
+
         }
 
     }

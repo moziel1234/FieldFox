@@ -163,6 +163,7 @@
             this.Log_textBox.Name = "Log_textBox";
             this.Log_textBox.Size = new System.Drawing.Size(403, 190);
             this.Log_textBox.TabIndex = 12;
+            this.Log_textBox.TextChanged += new System.EventHandler(this.Log_textBox_TextChanged);
             // 
             // Avg_num_textBox
             // 
