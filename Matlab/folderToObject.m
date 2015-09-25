@@ -17,8 +17,9 @@ function [ ret_obj ] = folderToObject( folder_name )
             phase_deg = amp_db;
         end
         % should be 21
-        amp_db(ind,1:2)=20*log10(abs(data.S_Parameters(2,1,:))); 
-        phase_deg(ind,1:2) = 180/pi*phase(data.S_Parameters(2,1,:));
+        amp_db(ind,1:length(data.freq))=20*log10(abs(data.S_Parameters(2,1,:))); 
+        phase_at_vec = reshape(data.S_Parameters(2,1,:),1, []);
+        phase_deg(ind,1:length(data.freq)) = 180/pi*phase(phase_at_vec);
         
     end
     time_sec = (times-times(1))/1000;
