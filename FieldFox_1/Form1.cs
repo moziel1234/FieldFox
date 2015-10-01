@@ -17,7 +17,7 @@ namespace FieldFox_1
         string hostName = "192.168.0.1";
         TelnetConnection tc = new TelnetConnection();
         string basicPath = @"C:\FieldFox";
-        int sleepTime = 60; //ms minus 20 ms to save the files
+        
 
 
         public Form1()
@@ -30,13 +30,16 @@ namespace FieldFox_1
             tc.ReadTimeout = 10000; // 10 sec
 
             Start_Freq_textBox.Text = "2";
-            End_Freq_textBox.Text = "600";
+            End_Freq_textBox.Text = "6000";
             Points_num_textBox.Text = "201";
-            IF_bandW_textBox.Text = "10000";
+            IF_bandW_textBox.Text = "300";
             Avg_num_textBox.Text = "1";
             Point_radioButton.Checked = true;
+            stopMeasByTime_radioButton.Checked = true;
             Folder_name_textBox.Text = "";
             Meas_time_textBox.Text = "20";
+            betweenMeasDelay_textBox.Text = "60";
+            numOfIterations_textBox.Text = "1";
         }
 
         private void Send_param_button_Click(object sender, EventArgs e)
@@ -117,7 +120,9 @@ namespace FieldFox_1
                         //Save files
                         DateTime finalTime = DateTime.Now.AddSeconds(Convert.ToDouble(Meas_time_textBox.Text));
                         int ind = 0;
-                        while (DateTime.Now<finalTime)
+                        bool stayAtLoop = true;
+                        int numOfIterations = Convert.ToInt32(numOfIterations_textBox.Text);
+                        while (stayAtLoop)
                         {
                             if ((ind % switchFolderFilesNumber) == 0)
                             {
@@ -131,7 +136,18 @@ namespace FieldFox_1
 
                             Write("MMEMory:STORe:SNP \"" + fileName + "\"");
                             ind++;
-                            Thread.Sleep(sleepTime); //sleep in ms
+                            Thread.Sleep(Convert.ToInt32(betweenMeasDelay_textBox.Text)); //sleep in ms
+                            if (stopMeasByTime_radioButton.Checked)
+                            {
+                                if (DateTime.Now < finalTime)
+                                    stayAtLoop = false;
+
+                            }
+                            else
+                            {
+                                if (ind>=numOfIterations)
+                                    stayAtLoop = false;
+                            }
                         }
                         Log_textBox.AppendText("Going to sleep 10 seconds before start uploading the files");
                         Thread.Sleep(10 * 1000);
@@ -204,10 +220,6 @@ namespace FieldFox_1
             return res;
         }
 
-        private void Log_textBox_TextChanged(object sender, EventArgs e)
-        {
-
-        }
 
     }
 

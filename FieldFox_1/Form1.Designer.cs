@@ -52,7 +52,15 @@
             this.Meas_time_textBox = new System.Windows.Forms.TextBox();
             this.label10 = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.stopMeasByIterNum_radioButton = new System.Windows.Forms.RadioButton();
+            this.stopMeasByTime_radioButton = new System.Windows.Forms.RadioButton();
+            this.numOfIterations_textBox = new System.Windows.Forms.TextBox();
+            this.label12 = new System.Windows.Forms.Label();
+            this.betweenMeasDelay_textBox = new System.Windows.Forms.TextBox();
+            this.label13 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
+            this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
             // label1
@@ -163,7 +171,6 @@
             this.Log_textBox.Name = "Log_textBox";
             this.Log_textBox.Size = new System.Drawing.Size(403, 190);
             this.Log_textBox.TabIndex = 12;
-            this.Log_textBox.TextChanged += new System.EventHandler(this.Log_textBox_TextChanged);
             // 
             // Avg_num_textBox
             // 
@@ -232,7 +239,7 @@
             // 
             // Measure_button
             // 
-            this.Measure_button.Location = new System.Drawing.Point(578, 273);
+            this.Measure_button.Location = new System.Drawing.Point(578, 295);
             this.Measure_button.Name = "Measure_button";
             this.Measure_button.Size = new System.Drawing.Size(75, 23);
             this.Measure_button.TabIndex = 19;
@@ -242,7 +249,7 @@
             // 
             // Meas_time_textBox
             // 
-            this.Meas_time_textBox.Location = new System.Drawing.Point(308, 260);
+            this.Meas_time_textBox.Location = new System.Drawing.Point(69, 22);
             this.Meas_time_textBox.Name = "Meas_time_textBox";
             this.Meas_time_textBox.Size = new System.Drawing.Size(46, 20);
             this.Meas_time_textBox.TabIndex = 21;
@@ -250,29 +257,98 @@
             // label10
             // 
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(249, 262);
+            this.label10.Location = new System.Drawing.Point(69, 24);
             this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(55, 13);
+            this.label10.Size = new System.Drawing.Size(0, 13);
             this.label10.TabIndex = 20;
-            this.label10.Text = "Meas time";
             // 
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(356, 262);
+            this.label11.Location = new System.Drawing.Point(117, 24);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(26, 13);
             this.label11.TabIndex = 22;
             this.label11.Text = "Sec";
             // 
+            // groupBox2
+            // 
+            this.groupBox2.Controls.Add(this.numOfIterations_textBox);
+            this.groupBox2.Controls.Add(this.stopMeasByIterNum_radioButton);
+            this.groupBox2.Controls.Add(this.label11);
+            this.groupBox2.Controls.Add(this.stopMeasByTime_radioButton);
+            this.groupBox2.Controls.Add(this.Meas_time_textBox);
+            this.groupBox2.Controls.Add(this.label10);
+            this.groupBox2.Location = new System.Drawing.Point(259, 295);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(286, 72);
+            this.groupBox2.TabIndex = 23;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "Measurment options";
+            // 
+            // stopMeasByIterNum_radioButton
+            // 
+            this.stopMeasByIterNum_radioButton.AutoSize = true;
+            this.stopMeasByIterNum_radioButton.Location = new System.Drawing.Point(15, 45);
+            this.stopMeasByIterNum_radioButton.Name = "stopMeasByIterNum_radioButton";
+            this.stopMeasByIterNum_radioButton.Size = new System.Drawing.Size(68, 17);
+            this.stopMeasByIterNum_radioButton.TabIndex = 1;
+            this.stopMeasByIterNum_radioButton.TabStop = true;
+            this.stopMeasByIterNum_radioButton.Text = "Iterations";
+            this.stopMeasByIterNum_radioButton.UseVisualStyleBackColor = true;
+            // 
+            // stopMeasByTime_radioButton
+            // 
+            this.stopMeasByTime_radioButton.AutoSize = true;
+            this.stopMeasByTime_radioButton.Location = new System.Drawing.Point(15, 22);
+            this.stopMeasByTime_radioButton.Name = "stopMeasByTime_radioButton";
+            this.stopMeasByTime_radioButton.Size = new System.Drawing.Size(48, 17);
+            this.stopMeasByTime_radioButton.TabIndex = 0;
+            this.stopMeasByTime_radioButton.TabStop = true;
+            this.stopMeasByTime_radioButton.Text = "Time";
+            this.stopMeasByTime_radioButton.UseVisualStyleBackColor = true;
+            // 
+            // numOfIterations_textBox
+            // 
+            this.numOfIterations_textBox.Location = new System.Drawing.Point(89, 45);
+            this.numOfIterations_textBox.Name = "numOfIterations_textBox";
+            this.numOfIterations_textBox.Size = new System.Drawing.Size(46, 20);
+            this.numOfIterations_textBox.TabIndex = 23;
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(256, 268);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(34, 13);
+            this.label12.TabIndex = 24;
+            this.label12.Text = "Delay";
+            // 
+            // betweenMeasDelay_textBox
+            // 
+            this.betweenMeasDelay_textBox.Location = new System.Drawing.Point(296, 267);
+            this.betweenMeasDelay_textBox.Name = "betweenMeasDelay_textBox";
+            this.betweenMeasDelay_textBox.Size = new System.Drawing.Size(60, 20);
+            this.betweenMeasDelay_textBox.TabIndex = 25;
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(362, 270);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(20, 13);
+            this.label13.TabIndex = 26;
+            this.label13.Text = "ms";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(865, 331);
-            this.Controls.Add(this.label11);
-            this.Controls.Add(this.Meas_time_textBox);
-            this.Controls.Add(this.label10);
+            this.ClientSize = new System.Drawing.Size(865, 375);
+            this.Controls.Add(this.label13);
+            this.Controls.Add(this.betweenMeasDelay_textBox);
+            this.Controls.Add(this.label12);
+            this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.Measure_button);
             this.Controls.Add(this.Folder_name_textBox);
             this.Controls.Add(this.label9);
@@ -297,6 +373,8 @@
             this.Load += new System.EventHandler(this.Form1_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -328,6 +406,13 @@
         private System.Windows.Forms.TextBox Meas_time_textBox;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.RadioButton stopMeasByIterNum_radioButton;
+        private System.Windows.Forms.RadioButton stopMeasByTime_radioButton;
+        private System.Windows.Forms.TextBox numOfIterations_textBox;
+        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.TextBox betweenMeasDelay_textBox;
+        private System.Windows.Forms.Label label13;
     }
 }
 
