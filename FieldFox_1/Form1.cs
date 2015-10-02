@@ -34,7 +34,7 @@ namespace FieldFox_1
             Points_num_textBox.Text = "201";
             IF_bandW_textBox.Text = "300";
             Avg_num_textBox.Text = "1";
-            Point_radioButton.Checked = true;
+            Sweep_radioButton.Checked = true;
             stopMeasByTime_radioButton.Checked = true;
             Folder_name_textBox.Text = "";
             Meas_time_textBox.Text = "20";
@@ -137,15 +137,15 @@ namespace FieldFox_1
                             Write("MMEMory:STORe:SNP \"" + fileName + "\"");
                             ind++;
                             Thread.Sleep(Convert.ToInt32(betweenMeasDelay_textBox.Text)); //sleep in ms
-                            if (stopMeasByTime_radioButton.Checked)
+                            ; if (stopMeasByTime_radioButton.Checked)
                             {
-                                if (DateTime.Now < finalTime)
+                                if (DateTime.Now >= finalTime)
                                     stayAtLoop = false;
 
                             }
                             else
                             {
-                                if (ind>=numOfIterations)
+                                if (ind >= numOfIterations)
                                     stayAtLoop = false;
                             }
                         }
