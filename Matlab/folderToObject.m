@@ -2,7 +2,7 @@ function [ ret_obj ] = folderToObject( folder_name )
 %FOLDERTOOBJECT Summary of this function goes here
 %   Detailed explanation goes here
     plotC = 1;
-    ret_obj = 0;
+   
     D = dir([folder_name,'\*.s2p']);
     S = sort({D.name});
     ind = 0;
