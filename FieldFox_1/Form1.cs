@@ -17,7 +17,7 @@ namespace FieldFox_1
         string hostName = "192.168.0.1";
         TelnetConnection tc = new TelnetConnection();
         string basicPath = @"C:\FieldFox";
-        
+
 
 
         public Form1()
@@ -40,6 +40,11 @@ namespace FieldFox_1
             Meas_time_textBox.Text = "20";
             betweenMeasDelay_textBox.Text = "60";
             numOfIterations_textBox.Text = "1";
+            startStopFreq_checkBox.Checked = true;
+            freqCenter_textBox.Text = "3000";
+            freqSpan_textBox.Text = "0";
+            freqCenter_textBox.Enabled = false;
+            freqSpan_textBox.Enabled = false;
         }
 
         private void Send_param_button_Click(object sender, EventArgs e)
@@ -57,8 +62,16 @@ namespace FieldFox_1
                     Write("SYST:PRES;*OPC?");
                     Write("*IDN?");
                     Write("CALC:PAR:DEF S21");
-                    Write("SENS:FREQ:START " + (Convert.ToInt32(Start_Freq_textBox.Text) * 1e6).ToString());
-                    Write("SENS:FREQ:STOP " + (Convert.ToInt32(End_Freq_textBox.Text) * 1e6).ToString());
+                    if (startStopFreq_checkBox.Checked)
+                    {
+                        Write("SENS:FREQ:START " + (Convert.ToDouble(Start_Freq_textBox.Text) * 1e6).ToString());
+                        Write("SENS:FREQ:STOP " + (Convert.ToDouble(End_Freq_textBox.Text) * 1e6).ToString());
+                    }
+                    else
+                    {
+                        Write("SENS:FREQ:CENTER " + (Convert.ToDouble(freqCenter_textBox.Text) * 1e6).ToString());
+                        Write("SENS:FREQ:SPAN " + (Convert.ToDouble(freqSpan_textBox.Text) * 1e6).ToString());
+                    }
                     Write("SENS:SWEEP:POINTS " + (Convert.ToInt32(Points_num_textBox.Text)).ToString());
                     Write("SENS:BWID " + (Convert.ToInt32(IF_bandW_textBox.Text)).ToString());
                     Write("AVER:COUNt " + (Convert.ToInt32(Avg_num_textBox.Text)).ToString());
@@ -101,91 +114,107 @@ namespace FieldFox_1
             }
             else
             {
-                try
+                if (MessageBox.Show("Are you sure that the current sweep time is correct?", "", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
-
-                    tc.Open(hostName);
-                    if (tc.IsOpen)
+                    try
                     {
-                        //Create folder on NA
-                        string timeStamp = DateTime.Now.ToString("yyyyMMddHHmmssffff");
-                        string folderName = timeStamp + "_" + Folder_name_textBox.Text;
 
-                        Write("MMEMory:MDIRectory \"[INTERNAL]:\\" + folderName + "\"");
-
-                        //Create folder on PC
-                        string pathString = System.IO.Path.Combine(basicPath, folderName);
-                        Directory.CreateDirectory(pathString);
-
-                        //Save files
-                        DateTime finalTime = DateTime.Now.AddSeconds(Convert.ToDouble(Meas_time_textBox.Text));
-                        int ind = 0;
-                        bool stayAtLoop = true;
-                        int numOfIterations = Convert.ToInt32(numOfIterations_textBox.Text);
-                        while (stayAtLoop)
+                        tc.Open(hostName);
+                        if (tc.IsOpen)
                         {
-                            if ((ind % switchFolderFilesNumber) == 0)
-                            {
-                                Write("MMEMory:MDIRectory \"[INTERNAL]:\\" + folderName + "\\" + folderNumber.ToString() + "\"");
-                                
-                                //Move to temp folder
-                                Write("MMEM:CDIR \"[INTERNAL]:\\" + folderName + "\\" + folderNumber.ToString() + "\"");
-                                folderNumber++;
-                            }
-                            string fileName = DateTime.Now.ToString("HHmmssffff") + "_" + ind.ToString() +".s2p";
+                            //Create folder on NA
+                            string timeStamp = DateTime.Now.ToString("yyyyMMddHHmmssffff");
+                            string folderName = timeStamp + "_" + Folder_name_textBox.Text;
 
-                            Write("MMEMory:STORe:SNP \"" + fileName + "\"");
-                            ind++;
-                            Thread.Sleep(Convert.ToInt32(betweenMeasDelay_textBox.Text)); //sleep in ms
-                            ; if (stopMeasByTime_radioButton.Checked)
-                            {
-                                if (DateTime.Now >= finalTime)
-                                    stayAtLoop = false;
+                            Write("MMEMory:MDIRectory \"[INTERNAL]:\\" + folderName + "\"");
 
-                            }
-                            else
-                            {
-                                if (ind >= numOfIterations)
-                                    stayAtLoop = false;
-                            }
-                        }
-                        Log_textBox.AppendText("Going to sleep 10 seconds before start uploading the files");
-                        Thread.Sleep(10 * 1000);
+                            //Create folder on PC
+                            string pathString = System.IO.Path.Combine(basicPath, folderName);
+                            Directory.CreateDirectory(pathString);
 
-                        //Iterate over the temporary folders
-                        for (int tempFolder = 0; tempFolder <= folderNumber; tempFolder++)
-                        {
-                            Write("MMEM:CDIR \"[INTERNAL]:\\" + folderName + "\\" + tempFolder.ToString() + "\"");
-                            //Get files list
-                            string fileList = Write("MMEM:CAT?");
-                            List<string> names = fileList.Split(',').ToList<string>();
+                            //Save on PC measurement parameters
+                            string centerFreq = Write("SENS:FREQ:CENTER?");
+                            string spanFreq = Write("SENS:FREQ:SPAN?");
+                            string pointsNum =  Write("SENS:SWEEP:POINTS?");
+                            string sweepTime = Write("SENS:SWEEP:MTIME?");
+                            string[] lines = { "centerFreq=" + centerFreq, "spanFreq=" + spanFreq, "pointsNum=" + pointsNum, "sweepTime=" + sweepTime };
+                            System.IO.File.WriteAllLines(System.IO.Path.Combine(pathString, "NAParam.dat"), lines);
 
-                            //Copy file to PC
-                            foreach (string fileName in names)
+                            //Start from beginning - walk around to start reading buffer from beginning 
+                            Write("AVER:COUNT 20");
+                            Write("AVER:COUNT 1;");
+
+                            //Save files
+                            DateTime finalTime = DateTime.Now.AddSeconds(Convert.ToDouble(Meas_time_textBox.Text));
+                            int ind = 0;
+                            bool stayAtLoop = true;
+                            int numOfIterations = Convert.ToInt32(numOfIterations_textBox.Text);
+                            while (stayAtLoop)
                             {
-                                if (fileName.Contains("s2p"))
+                                Thread.Sleep(Convert.ToInt32(betweenMeasDelay_textBox.Text)); //sleep in ms
+                                if ((ind % switchFolderFilesNumber) == 0)
                                 {
-                                    string cleanFileName = fileName.Replace("\"", "").Replace("\\", "");
-                                    string cmd = "MMEM:DATA? \"" + cleanFileName + "\"";
-                                    var temp = Write(cmd, false);
-                                    FileStream fs1 = new FileStream(pathString + "\\" + cleanFileName, FileMode.OpenOrCreate, FileAccess.Write);
-                                    StreamWriter writer = new StreamWriter(fs1);
-                                    writer.Write(temp);
-                                    writer.Close();
+                                    Write("MMEMory:MDIRectory \"[INTERNAL]:\\" + folderName + "\\" + folderNumber.ToString() + "\"");
+
+                                    //Move to temp folder
+                                    Write("MMEM:CDIR \"[INTERNAL]:\\" + folderName + "\\" + folderNumber.ToString() + "\"");
+                                    folderNumber++;
+                                }
+                                string fileName = DateTime.Now.ToString("HHmmssffff") + "_" + ind.ToString() + ".s2p";
+
+                                Write("MMEMory:STORe:SNP \"" + fileName + "\"");
+                                ind++;
+                                
+                                ; if (stopMeasByTime_radioButton.Checked)
+                                {
+                                    if (DateTime.Now >= finalTime)
+                                        stayAtLoop = false;
+
+                                }
+                                else
+                                {
+                                    if (ind >= numOfIterations)
+                                        stayAtLoop = false;
                                 }
                             }
+                            Log_textBox.AppendText("Going to sleep 10 seconds before start uploading the files");
+                            Thread.Sleep(10 * 1000);
+
+                            //Iterate over the temporary folders
+                            for (int tempFolder = 0; tempFolder <= folderNumber; tempFolder++)
+                            {
+                                Write("MMEM:CDIR \"[INTERNAL]:\\" + folderName + "\\" + tempFolder.ToString() + "\"");
+                                //Get files list
+                                string fileList = Write("MMEM:CAT?");
+                                List<string> names = fileList.Split(',').ToList<string>();
+
+                                //Copy file to PC
+                                foreach (string fileName in names)
+                                {
+                                    if (fileName.Contains("s2p"))
+                                    {
+                                        string cleanFileName = fileName.Replace("\"", "").Replace("\\", "");
+                                        string cmd = "MMEM:DATA? \"" + cleanFileName + "\"";
+                                        var temp = Write(cmd, false);
+                                        FileStream fs1 = new FileStream(pathString + "\\" + cleanFileName, FileMode.OpenOrCreate, FileAccess.Write);
+                                        StreamWriter writer = new StreamWriter(fs1);
+                                        writer.Write(temp);
+                                        writer.Close();
+                                    }
+                                }
+                            }
+                            //Remove the folder on NA                        
+
+                            Write("MMEM:CDIR \"[INTERNAL]:\\\"");
+                            Write("MMEM:RDIR \"" + folderName + "\",\"recursive\"");
                         }
-                        //Remove the folder on NA                        
-                        
-                        Write("MMEM:CDIR \"[INTERNAL]:\\\"");
-                        Write("MMEM:RDIR \"" + folderName + "\",\"recursive\"");
+
                     }
+                    catch (Exception exep)
+                    {
+                        Log_textBox.AppendText(exep.ToString() + "\n");
 
-                }
-                catch (Exception exep)
-                {
-                    Log_textBox.AppendText(exep.ToString() + "\n");
-
+                    }
                 }
             }
         }
@@ -194,7 +223,7 @@ namespace FieldFox_1
         {
             string ret = "";
             Log_textBox.AppendText(s + "\n");
-            
+
             tc.Write1(s);
             if (s.IndexOf('?') >= 0)
                 ret = Read(writeToLog);
@@ -218,6 +247,24 @@ namespace FieldFox_1
                 Log_textBox.AppendText(exep.ToString() + "\n");
             }
             return res;
+        }
+
+        private void startStopFreq_checkBox_CheckedChanged(object sender, EventArgs e)
+        {
+            if (startStopFreq_checkBox.Checked)
+            {
+                Start_Freq_textBox.Enabled = true;
+                End_Freq_textBox.Enabled = true;
+                freqCenter_textBox.Enabled = false;
+                freqSpan_textBox.Enabled = false;
+            }
+            else
+            {
+                Start_Freq_textBox.Enabled = false;
+                End_Freq_textBox.Enabled = false;
+                freqCenter_textBox.Enabled = true;
+                freqSpan_textBox.Enabled = true;
+            }
         }
 
 

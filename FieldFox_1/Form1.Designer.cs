@@ -53,12 +53,19 @@
             this.label10 = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.numOfIterations_textBox = new System.Windows.Forms.TextBox();
             this.stopMeasByIterNum_radioButton = new System.Windows.Forms.RadioButton();
             this.stopMeasByTime_radioButton = new System.Windows.Forms.RadioButton();
-            this.numOfIterations_textBox = new System.Windows.Forms.TextBox();
             this.label12 = new System.Windows.Forms.Label();
             this.betweenMeasDelay_textBox = new System.Windows.Forms.TextBox();
             this.label13 = new System.Windows.Forms.Label();
+            this.label14 = new System.Windows.Forms.Label();
+            this.freqCenter_textBox = new System.Windows.Forms.TextBox();
+            this.label15 = new System.Windows.Forms.Label();
+            this.label16 = new System.Windows.Forms.Label();
+            this.freqSpan_textBox = new System.Windows.Forms.TextBox();
+            this.label17 = new System.Windows.Forms.Label();
+            this.startStopFreq_checkBox = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -97,7 +104,7 @@
             // 
             // Points_num_textBox
             // 
-            this.Points_num_textBox.Location = new System.Drawing.Point(96, 99);
+            this.Points_num_textBox.Location = new System.Drawing.Point(96, 174);
             this.Points_num_textBox.Name = "Points_num_textBox";
             this.Points_num_textBox.Size = new System.Drawing.Size(99, 20);
             this.Points_num_textBox.TabIndex = 5;
@@ -105,7 +112,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(37, 101);
+            this.label3.Location = new System.Drawing.Point(37, 176);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(61, 13);
             this.label3.TabIndex = 4;
@@ -113,7 +120,7 @@
             // 
             // IF_bandW_textBox
             // 
-            this.IF_bandW_textBox.Location = new System.Drawing.Point(96, 134);
+            this.IF_bandW_textBox.Location = new System.Drawing.Point(96, 209);
             this.IF_bandW_textBox.Name = "IF_bandW_textBox";
             this.IF_bandW_textBox.Size = new System.Drawing.Size(99, 20);
             this.IF_bandW_textBox.TabIndex = 7;
@@ -121,7 +128,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(37, 136);
+            this.label4.Location = new System.Drawing.Point(37, 211);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(54, 13);
             this.label4.TabIndex = 6;
@@ -129,7 +136,7 @@
             // 
             // Send_param_button
             // 
-            this.Send_param_button.Location = new System.Drawing.Point(40, 246);
+            this.Send_param_button.Location = new System.Drawing.Point(40, 321);
             this.Send_param_button.Name = "Send_param_button";
             this.Send_param_button.Size = new System.Drawing.Size(75, 23);
             this.Send_param_button.TabIndex = 8;
@@ -158,7 +165,7 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(201, 136);
+            this.label7.Location = new System.Drawing.Point(201, 211);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(20, 13);
             this.label7.TabIndex = 11;
@@ -174,7 +181,7 @@
             // 
             // Avg_num_textBox
             // 
-            this.Avg_num_textBox.Location = new System.Drawing.Point(96, 169);
+            this.Avg_num_textBox.Location = new System.Drawing.Point(96, 244);
             this.Avg_num_textBox.Name = "Avg_num_textBox";
             this.Avg_num_textBox.Size = new System.Drawing.Size(99, 20);
             this.Avg_num_textBox.TabIndex = 14;
@@ -182,7 +189,7 @@
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(37, 171);
+            this.label8.Location = new System.Drawing.Point(37, 246);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(51, 13);
             this.label8.TabIndex = 13;
@@ -192,7 +199,7 @@
             // 
             this.groupBox1.Controls.Add(this.Point_radioButton);
             this.groupBox1.Controls.Add(this.Sweep_radioButton);
-            this.groupBox1.Location = new System.Drawing.Point(40, 195);
+            this.groupBox1.Location = new System.Drawing.Point(40, 270);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(180, 45);
             this.groupBox1.TabIndex = 16;
@@ -286,6 +293,13 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Measurment options";
             // 
+            // numOfIterations_textBox
+            // 
+            this.numOfIterations_textBox.Location = new System.Drawing.Point(89, 45);
+            this.numOfIterations_textBox.Name = "numOfIterations_textBox";
+            this.numOfIterations_textBox.Size = new System.Drawing.Size(46, 20);
+            this.numOfIterations_textBox.TabIndex = 23;
+            // 
             // stopMeasByIterNum_radioButton
             // 
             this.stopMeasByIterNum_radioButton.AutoSize = true;
@@ -307,13 +321,6 @@
             this.stopMeasByTime_radioButton.TabStop = true;
             this.stopMeasByTime_radioButton.Text = "Time";
             this.stopMeasByTime_radioButton.UseVisualStyleBackColor = true;
-            // 
-            // numOfIterations_textBox
-            // 
-            this.numOfIterations_textBox.Location = new System.Drawing.Point(89, 45);
-            this.numOfIterations_textBox.Name = "numOfIterations_textBox";
-            this.numOfIterations_textBox.Size = new System.Drawing.Size(46, 20);
-            this.numOfIterations_textBox.TabIndex = 23;
             // 
             // label12
             // 
@@ -340,11 +347,78 @@
             this.label13.TabIndex = 26;
             this.label13.Text = "ms";
             // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(201, 101);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(29, 13);
+            this.label14.TabIndex = 29;
+            this.label14.Text = "MHz";
+            // 
+            // freqCenter_textBox
+            // 
+            this.freqCenter_textBox.Location = new System.Drawing.Point(96, 98);
+            this.freqCenter_textBox.Name = "freqCenter_textBox";
+            this.freqCenter_textBox.Size = new System.Drawing.Size(99, 20);
+            this.freqCenter_textBox.TabIndex = 28;
+            // 
+            // label15
+            // 
+            this.label15.AutoSize = true;
+            this.label15.Location = new System.Drawing.Point(37, 100);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(62, 13);
+            this.label15.TabIndex = 27;
+            this.label15.Text = "Freq Center";
+            // 
+            // label16
+            // 
+            this.label16.AutoSize = true;
+            this.label16.Location = new System.Drawing.Point(201, 137);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(29, 13);
+            this.label16.TabIndex = 32;
+            this.label16.Text = "MHz";
+            // 
+            // freqSpan_textBox
+            // 
+            this.freqSpan_textBox.Location = new System.Drawing.Point(96, 134);
+            this.freqSpan_textBox.Name = "freqSpan_textBox";
+            this.freqSpan_textBox.Size = new System.Drawing.Size(99, 20);
+            this.freqSpan_textBox.TabIndex = 31;
+            // 
+            // label17
+            // 
+            this.label17.AutoSize = true;
+            this.label17.Location = new System.Drawing.Point(37, 136);
+            this.label17.Name = "label17";
+            this.label17.Size = new System.Drawing.Size(56, 13);
+            this.label17.TabIndex = 30;
+            this.label17.Text = "Freq Span";
+            // 
+            // startStopFreq_checkBox
+            // 
+            this.startStopFreq_checkBox.AutoSize = true;
+            this.startStopFreq_checkBox.Location = new System.Drawing.Point(19, 30);
+            this.startStopFreq_checkBox.Name = "startStopFreq_checkBox";
+            this.startStopFreq_checkBox.Size = new System.Drawing.Size(15, 14);
+            this.startStopFreq_checkBox.TabIndex = 33;
+            this.startStopFreq_checkBox.UseVisualStyleBackColor = true;
+            this.startStopFreq_checkBox.CheckedChanged += new System.EventHandler(this.startStopFreq_checkBox_CheckedChanged);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(865, 375);
+            this.ClientSize = new System.Drawing.Size(865, 429);
+            this.Controls.Add(this.startStopFreq_checkBox);
+            this.Controls.Add(this.label16);
+            this.Controls.Add(this.freqSpan_textBox);
+            this.Controls.Add(this.label17);
+            this.Controls.Add(this.label14);
+            this.Controls.Add(this.freqCenter_textBox);
+            this.Controls.Add(this.label15);
             this.Controls.Add(this.label13);
             this.Controls.Add(this.betweenMeasDelay_textBox);
             this.Controls.Add(this.label12);
@@ -413,6 +487,13 @@
         private System.Windows.Forms.Label label12;
         private System.Windows.Forms.TextBox betweenMeasDelay_textBox;
         private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.TextBox freqCenter_textBox;
+        private System.Windows.Forms.Label label15;
+        private System.Windows.Forms.Label label16;
+        private System.Windows.Forms.TextBox freqSpan_textBox;
+        private System.Windows.Forms.Label label17;
+        private System.Windows.Forms.CheckBox startStopFreq_checkBox;
     }
 }
 
