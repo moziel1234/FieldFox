@@ -8,7 +8,10 @@ using System.Text;
 using System.Windows.Forms;
 using System.Net.Sockets;
 using System.IO;
+using MccDaq;
 using System.Threading;
+using System.Diagnostics;
+
 
 namespace FieldFox_1
 {
@@ -17,12 +20,77 @@ namespace FieldFox_1
         string hostName = "192.168.0.1";
         TelnetConnection tc = new TelnetConnection();
         string basicPath = @"C:\FieldFox";
+        MccBoard myBoard = new MccBoard(0);
+        MccDaq.ScanOptions Options;
+        MccDaq.Range Range;
+        ushort dataValue;
+        List<float> engUnits;
+        int counterMeas = 0;
+        int ms = 0;
+        Thread oThread;
+        private IntPtr MemHandle = IntPtr.Zero;
+        int pointsNumOnGraph = 3 * 200;
+        int NumPoints = 600;
+        int numOfPointsPerGraphPoint = 60;
+        ushort[] ADData;
+        Stopwatch sw = new Stopwatch();
+
+        public List<float> AveragePoints(ushort[] data)
+        {
+            List<float> newGrpahPoints = new List<float>();
+            float tempSum = 0;
+            int ind = 0;
+            foreach (ushort i in data)
+            {
+                if (ind == numOfPointsPerGraphPoint - 1)
+                {
+                    newGrpahPoints.Add((tempSum / numOfPointsPerGraphPoint));
+                    ind = 0;
+                    tempSum = 0;
+                }
+                ind++;
+                tempSum = tempSum + i;
+            }
+            return newGrpahPoints;
+        }
 
 
+        public void CountMeas()
+        {
+            while (true)
+            {
+                sw = new Stopwatch();
+                sw.Start();
+                int Rate = 5000;
+                //myBoard.AIn(0, MccDaq.Range.Bip10Volts, out dataValue);
+                //myBoard.ToEngUnits(MccDaq.Range.Bip1Volts, dataValue, out engUnits);
+                myBoard.AInScan(0, 0, NumPoints, ref Rate, Range, MemHandle, Options);
+                MccDaq.MccService.WinBufToArray(MemHandle, ADData, 0, NumPoints);
+                //engUnits  = (float)ADData.Select(x => (int)x).Average();
+                string timeStr = ((DateTime.Now - new DateTime(1970, 1, 1)).TotalMilliseconds).ToString();
+                string result = timeStr + " " + string.Join(" ", ADData);
+                using (StreamWriter w = File.AppendText("log.txt"))
+                {
+                    w.WriteLine(result);
+                }
+                engUnits = AveragePoints(ADData);
+                sw.Stop();
+            }
+        }
+
+       
 
         public Form1()
         {
+            oThread = new Thread(new ThreadStart(CountMeas));
             InitializeComponent();
+
+            chart1.ChartAreas[0].AxisY.Maximum = 3;
+            chart1.ChartAreas[0].AxisY.Minimum = 2;
+            ADData = new ushort[NumPoints];
+            MemHandle = MccDaq.MccService.WinBufAllocEx(NumPoints);
+            //Options = MccDaq.ScanOptions.ConvertData;
+            Options = MccDaq.ScanOptions.BurstIo;
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -266,6 +334,47 @@ namespace FieldFox_1
                 freqSpan_textBox.Enabled = true;
             }
         }
+
+        private void button_pulseMeter_Click_1(object sender, EventArgs e)
+        {
+            oThread.Start();
+            timer1.Start();
+            timer2.Start();
+        }
+
+        private void timer1_Tick_1(object sender, EventArgs e)
+        {
+            if (engUnits != null)
+            {
+                int newPointsNumber = NumPoints / numOfPointsPerGraphPoint;
+                counterMeas = counterMeas + newPointsNumber;
+                //myBoard.AIn(0, MccDaq.Range.Bip10Volts,out dataValue);
+                //myBoard.ToEngUnits(MccDaq.Range.Bip10Volts, dataValue, out engUnits);
+                //label1.Text = engUnits.ToString();
+                if (counterMeas > pointsNumOnGraph)
+                {
+                    for (int i = 0; i < newPointsNumber; i++)
+                        chart1.Series[0].Points.RemoveAt(0);// (counterMeas, (double)engUnits);
+                }
+                for (int i = 0; i < newPointsNumber; i++)
+                    chart1.Series[0].Points.AddY(engUnits[i]);
+                label1.Text = (sw.ElapsedMilliseconds).ToString();
+
+                chart1.Update();
+            }
+        }
+
+        private void timer2_Tick_1(object sender, EventArgs e)
+        {
+            double max1 = chart1.Series[0].Points.FindMaxByValue().YValues[0];
+            double min1 = chart1.Series[0].Points.FindMinByValue().YValues[0];
+            double delta = Math.Abs(max1 * 0.001);
+            chart1.ChartAreas[0].AxisY.Maximum = max1 + delta;
+            chart1.ChartAreas[0].AxisY.Minimum = min1 - delta;
+        }
+
+
+        
 
 
     }
