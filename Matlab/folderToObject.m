@@ -1,9 +1,9 @@
 function [ ret_obj ] = folderToObject( folder_name )
 %FOLDERTOOBJECT Summary of this function goes here
 %   Detailed explanation goes here
-    plotC = 1;
+    plotC = 0;
     
-    useRegularFunction = 1;
+    useRegularFunction = 0;
     %check if NAParam.dat exist
     if exist([folder_name,'\\NAParam.dat'], 'file') == 2
         %if exist read file and get the NA params.
@@ -69,20 +69,12 @@ function [ ret_obj ] = folderToObject( folder_name )
         savefig(amp_fig,[folder_name,'\amp_fig']);
         savefig(phs_fig,[folder_name,'\phs_fig']);
     end
-    save([folder_name,'\data.mat'],'time_sec','amp_db','phase_deg','freqs');
+    save([folder_name,'\data.mat'],'time_sec','amp_db','phase_deg','freqs','times');
     ret_obj.time_sec=time_sec;
+    ret_obj.times=times;
     ret_obj.amp_db=amp_db;
     ret_obj.phase_deg=phase_deg;
     ret_obj.freqs=freqs;
 end
 
-function ret_time = FileNameToMili(file_name)
-    % 1045578098_0.s2p
-    % hhmmssfff
-    hours = str2double(file_name(1:2)) * 60 * 60 * 1000;
-    minutes = str2double(file_name(3:4)) * 60 * 1000;
-    seconds = str2double(file_name(5:6)) * 1000;
-    mili = str2double(file_name(7:9));
-    ret_time = hours + minutes + seconds + mili;
-end
 

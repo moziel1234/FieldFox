@@ -20,6 +20,7 @@ namespace FieldFox_1
         string hostName = "192.168.0.1";
         TelnetConnection tc = new TelnetConnection();
         string basicPath = @"C:\FieldFox";
+        string folderName = "";
         MccBoard myBoard = new MccBoard(0);
         MccDaq.ScanOptions Options;
         MccDaq.Range Range;
@@ -34,6 +35,15 @@ namespace FieldFox_1
         int numOfPointsPerGraphPoint = 60;
         ushort[] ADData;
         Stopwatch sw = new Stopwatch();
+        System.Timers.Timer fieldFoxTimer = new System.Timers.Timer();
+        int fieldFoxTimerTickCounter = 0;
+        int switchFolderFilesNumber = 50;
+        int folderNumber = 0;
+        int numOfIterations = -1;
+        DateTime finalTime;
+        string pathString = "";
+        string logLine = "";
+        int chartPulseTimerCounter = 0;
 
         public List<float> AveragePoints(ushort[] data)
         {
@@ -67,11 +77,16 @@ namespace FieldFox_1
                 myBoard.AInScan(0, 0, NumPoints, ref Rate, Range, MemHandle, Options);
                 MccDaq.MccService.WinBufToArray(MemHandle, ADData, 0, NumPoints);
                 //engUnits  = (float)ADData.Select(x => (int)x).Average();
-                string timeStr = ((DateTime.Now - new DateTime(1970, 1, 1)).TotalMilliseconds).ToString();
-                string result = timeStr + " " + string.Join(" ", ADData);
-                using (StreamWriter w = File.AppendText("log.txt"))
+                if (folderName.Length!=0)
                 {
-                    w.WriteLine(result);
+                    string timeStr = ((DateTime.Now - new DateTime(1970, 1, 1)).TotalMilliseconds).ToString();
+                    string result = timeStr + " " + string.Join(" ", ADData);
+                    string pathString = System.IO.Path.Combine(basicPath, folderName);
+
+                    using (StreamWriter w = File.AppendText(System.IO.Path.Combine(pathString, "log.txt")))
+                    {
+                        w.WriteLine(result);
+                    }
                 }
                 engUnits = AveragePoints(ADData);
                 sw.Stop();
@@ -157,25 +172,92 @@ namespace FieldFox_1
                 }
                 else
                 {
-                    Log_textBox.AppendText("Error opening " + hostName);
+                    UpdateLog("Error opening " + hostName);
 
                 }
                 //FieldFox Programming Guide 5
             }
             catch (Exception exep)
             {
-                Log_textBox.AppendText(exep.ToString() + "\n");
+                UpdateLog(exep.ToString() + "\n");
 
             }
 
         }
 
+        void StopFieldFoxMeasurement()
+        {
+            fieldFoxTimer.Stop();
+            UpdateLog("Going to sleep 10 seconds before start uploading the files");
+            Thread.Sleep(10 * 1000);
+
+            //Iterate over the temporary folders
+            for (int tempFolder = 0; tempFolder <= folderNumber; tempFolder++)
+            {
+                Write("MMEM:CDIR \"[INTERNAL]:\\" + folderName + "\\" + tempFolder.ToString() + "\"");
+                //Get files list
+                string fileList = Write("MMEM:CAT?");
+                List<string> names = fileList.Split(',').ToList<string>();
+
+                //Copy file to PC
+                foreach (string fileName in names)
+                {
+                    if (fileName.Contains("s2p"))
+                    {
+                        string cleanFileName = fileName.Replace("\"", "").Replace("\\", "");
+                        string cmd = "MMEM:DATA? \"" + cleanFileName + "\"";
+                        var temp = Write(cmd, false);
+                        FileStream fs1 = new FileStream(pathString + "\\" + cleanFileName, FileMode.OpenOrCreate, FileAccess.Write);
+                        StreamWriter writer = new StreamWriter(fs1);
+                        writer.Write(temp);
+                        writer.Close();
+                    }
+                }
+            }
+            //Remove the folder on NA                        
+
+            Write("MMEM:CDIR \"[INTERNAL]:\\\"");
+            Write("MMEM:RDIR \"" + folderName + "\",\"recursive\"");
+        }
+
+        void fieldFoxTimer_TimerElapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            try
+            {
+                if ((fieldFoxTimerTickCounter % switchFolderFilesNumber) == 0)
+                {
+                    Write("MMEMory:MDIRectory \"[INTERNAL]:\\" + folderName + "\\" + folderNumber.ToString() + "\"");
+
+                    //Move to temp folder
+                    Write("MMEM:CDIR \"[INTERNAL]:\\" + folderName + "\\" + folderNumber.ToString() + "\"");
+                    folderNumber++;
+                }
+                string fileName = DateTime.Now.ToString("HHmmssffff") + "_" + fieldFoxTimerTickCounter.ToString() + ".s2p";
+
+                Write("MMEMory:STORe:SNP \"" + fileName + "\"");
+                fieldFoxTimerTickCounter++;
+
+                if (stopMeasByTime_radioButton.Checked)
+                {
+                    if (DateTime.Now >= finalTime)
+                        StopFieldFoxMeasurement();
+
+                }
+                else
+                {
+                    if (fieldFoxTimerTickCounter >= numOfIterations)
+                        StopFieldFoxMeasurement();
+                }
+            }
+            catch (Exception exep)
+            {
+                UpdateLog(exep.ToString());
+
+            }
+        }
 
         private void Measure_button_Click(object sender, EventArgs e)
         {
-            int switchFolderFilesNumber = 50;
-            int folderNumber = 0;
-
             if (Folder_name_textBox.Text.Length < 4)
             {
                 System.Windows.Forms.MessageBox.Show("You have to enter valid test name!");
@@ -192,18 +274,18 @@ namespace FieldFox_1
                         {
                             //Create folder on NA
                             string timeStamp = DateTime.Now.ToString("yyyyMMddHHmmssffff");
-                            string folderName = timeStamp + "_" + Folder_name_textBox.Text;
+                            folderName = timeStamp + "_" + Folder_name_textBox.Text;
 
                             Write("MMEMory:MDIRectory \"[INTERNAL]:\\" + folderName + "\"");
 
                             //Create folder on PC
-                            string pathString = System.IO.Path.Combine(basicPath, folderName);
+                            pathString = System.IO.Path.Combine(basicPath, folderName);
                             Directory.CreateDirectory(pathString);
 
                             //Save on PC measurement parameters
                             string centerFreq = Write("SENS:FREQ:CENTER?");
                             string spanFreq = Write("SENS:FREQ:SPAN?");
-                            string pointsNum =  Write("SENS:SWEEP:POINTS?");
+                            string pointsNum = Write("SENS:SWEEP:POINTS?");
                             string sweepTime = Write("SENS:SWEEP:MTIME?");
                             string[] lines = { "centerFreq=" + centerFreq, "spanFreq=" + spanFreq, "pointsNum=" + pointsNum, "sweepTime=" + sweepTime };
                             System.IO.File.WriteAllLines(System.IO.Path.Combine(pathString, "NAParam.dat"), lines);
@@ -213,74 +295,18 @@ namespace FieldFox_1
                             Write("AVER:COUNT 1;");
 
                             //Save files
-                            DateTime finalTime = DateTime.Now.AddSeconds(Convert.ToDouble(Meas_time_textBox.Text));
-                            int ind = 0;
-                            bool stayAtLoop = true;
-                            int numOfIterations = Convert.ToInt32(numOfIterations_textBox.Text);
-                            while (stayAtLoop)
-                            {
-                                Thread.Sleep(Convert.ToInt32(betweenMeasDelay_textBox.Text)); //sleep in ms
-                                if ((ind % switchFolderFilesNumber) == 0)
-                                {
-                                    Write("MMEMory:MDIRectory \"[INTERNAL]:\\" + folderName + "\\" + folderNumber.ToString() + "\"");
-
-                                    //Move to temp folder
-                                    Write("MMEM:CDIR \"[INTERNAL]:\\" + folderName + "\\" + folderNumber.ToString() + "\"");
-                                    folderNumber++;
-                                }
-                                string fileName = DateTime.Now.ToString("HHmmssffff") + "_" + ind.ToString() + ".s2p";
-
-                                Write("MMEMory:STORe:SNP \"" + fileName + "\"");
-                                ind++;
-                                
-                                ; if (stopMeasByTime_radioButton.Checked)
-                                {
-                                    if (DateTime.Now >= finalTime)
-                                        stayAtLoop = false;
-
-                                }
-                                else
-                                {
-                                    if (ind >= numOfIterations)
-                                        stayAtLoop = false;
-                                }
-                            }
-                            Log_textBox.AppendText("Going to sleep 10 seconds before start uploading the files");
-                            Thread.Sleep(10 * 1000);
-
-                            //Iterate over the temporary folders
-                            for (int tempFolder = 0; tempFolder <= folderNumber; tempFolder++)
-                            {
-                                Write("MMEM:CDIR \"[INTERNAL]:\\" + folderName + "\\" + tempFolder.ToString() + "\"");
-                                //Get files list
-                                string fileList = Write("MMEM:CAT?");
-                                List<string> names = fileList.Split(',').ToList<string>();
-
-                                //Copy file to PC
-                                foreach (string fileName in names)
-                                {
-                                    if (fileName.Contains("s2p"))
-                                    {
-                                        string cleanFileName = fileName.Replace("\"", "").Replace("\\", "");
-                                        string cmd = "MMEM:DATA? \"" + cleanFileName + "\"";
-                                        var temp = Write(cmd, false);
-                                        FileStream fs1 = new FileStream(pathString + "\\" + cleanFileName, FileMode.OpenOrCreate, FileAccess.Write);
-                                        StreamWriter writer = new StreamWriter(fs1);
-                                        writer.Write(temp);
-                                        writer.Close();
-                                    }
-                                }
-                            }
-                            //Remove the folder on NA                        
-
-                            Write("MMEM:CDIR \"[INTERNAL]:\\\"");
-                            Write("MMEM:RDIR \"" + folderName + "\",\"recursive\"");
+                            finalTime = DateTime.Now.AddSeconds(Convert.ToDouble(Meas_time_textBox.Text));
+                            numOfIterations = Convert.ToInt32(numOfIterations_textBox.Text);
+                            fieldFoxTimer.Interval = Convert.ToInt32(betweenMeasDelay_textBox.Text);
+                            fieldFoxTimer.AutoReset = true;
+                            fieldFoxTimer.Elapsed += new System.Timers.ElapsedEventHandler(fieldFoxTimer_TimerElapsed);
+                            fieldFoxTimer.Start();
                         }
 
                     }
                     catch (Exception exep)
                     {
-                        Log_textBox.AppendText(exep.ToString() + "\n");
+                        UpdateLog(exep.ToString());
 
                     }
                 }
@@ -290,7 +316,7 @@ namespace FieldFox_1
         public string Write(string s, bool writeToLog = true)
         {
             string ret = "";
-            Log_textBox.AppendText(s + "\n");
+            UpdateLog(s);
 
             tc.Write1(s);
             if (s.IndexOf('?') >= 0)
@@ -306,13 +332,13 @@ namespace FieldFox_1
                 res = tc.Read();
                 if (writeToLog)
                 {
-                    Log_textBox.AppendText(res + "\n");
+                    UpdateLog(res);
                 }
             }
             catch (Exception exep)
             {
-                Log_textBox.AppendText("Error during reading!\n");
-                Log_textBox.AppendText(exep.ToString() + "\n");
+                UpdateLog("Error during reading!");
+                UpdateLog(exep.ToString());
             }
             return res;
         }
@@ -339,40 +365,77 @@ namespace FieldFox_1
         {
             oThread.Start();
             timer1.Start();
-            timer2.Start();
+        }
+
+        delegate void SetGraphCallback();
+        delegate void SetLogCallBack();
+
+        private void UpdateLog(string str)
+        {
+            logLine = str;
+            updateLogCB();
+            logLine = "";
+        }
+
+        private void updateLogCB()
+        {
+            if (this.Log_textBox.InvokeRequired)
+            {
+                SetLogCallBack d = new SetLogCallBack(updateLogCB);
+                this.Invoke(d, new object[] { });
+            }
+            else
+            {
+                Log_textBox.AppendText(logLine + "\n");
+            }
+        }
+
+        private void updatePlot()
+        {
+            if (this.chart1.InvokeRequired)
+            {
+                SetGraphCallback d = new SetGraphCallback(updatePlot);
+                this.Invoke(d, new object[] { });
+            }
+            else
+            {
+                if (engUnits != null)
+                {
+                    int newPointsNumber = NumPoints / numOfPointsPerGraphPoint;
+                    counterMeas = counterMeas + newPointsNumber;
+                    //myBoard.AIn(0, MccDaq.Range.Bip10Volts,out dataValue);
+                    //myBoard.ToEngUnits(MccDaq.Range.Bip10Volts, dataValue, out engUnits);
+                    //label1.Text = engUnits.ToString();
+                    if (counterMeas > pointsNumOnGraph)
+                    {
+                        for (int i = 0; i < newPointsNumber; i++)
+                            chart1.Series[0].Points.RemoveAt(0);// (counterMeas, (double)engUnits);
+                    }
+                    for (int i = 0; i < newPointsNumber; i++)
+                        chart1.Series[0].Points.AddY(engUnits[i]);
+                    // label1.Text = (sw.ElapsedMilliseconds).ToString();
+
+                    chart1.Update();
+                    chartPulseTimerCounter++;
+                }
+                if (chartPulseTimerCounter == 5)
+                {
+                    double max1 = chart1.Series[0].Points.FindMaxByValue().YValues[0];
+                    double min1 = chart1.Series[0].Points.FindMinByValue().YValues[0];
+                    double delta = Math.Abs(max1 * 0.001);
+                    chart1.ChartAreas[0].AxisY.Maximum = max1 + delta;
+                    chart1.ChartAreas[0].AxisY.Minimum = min1 - delta;
+                }
+            }
+
         }
 
         private void timer1_Tick_1(object sender, EventArgs e)
         {
-            if (engUnits != null)
-            {
-                int newPointsNumber = NumPoints / numOfPointsPerGraphPoint;
-                counterMeas = counterMeas + newPointsNumber;
-                //myBoard.AIn(0, MccDaq.Range.Bip10Volts,out dataValue);
-                //myBoard.ToEngUnits(MccDaq.Range.Bip10Volts, dataValue, out engUnits);
-                //label1.Text = engUnits.ToString();
-                if (counterMeas > pointsNumOnGraph)
-                {
-                    for (int i = 0; i < newPointsNumber; i++)
-                        chart1.Series[0].Points.RemoveAt(0);// (counterMeas, (double)engUnits);
-                }
-                for (int i = 0; i < newPointsNumber; i++)
-                    chart1.Series[0].Points.AddY(engUnits[i]);
-                label1.Text = (sw.ElapsedMilliseconds).ToString();
-
-                chart1.Update();
-            }
+            updatePlot();
         }
 
-        private void timer2_Tick_1(object sender, EventArgs e)
-        {
-            double max1 = chart1.Series[0].Points.FindMaxByValue().YValues[0];
-            double min1 = chart1.Series[0].Points.FindMinByValue().YValues[0];
-            double delta = Math.Abs(max1 * 0.001);
-            chart1.ChartAreas[0].AxisY.Maximum = max1 + delta;
-            chart1.ChartAreas[0].AxisY.Minimum = min1 - delta;
-        }
-
+        
 
         
 
