@@ -29,9 +29,9 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.label1 = new System.Windows.Forms.Label();
             this.Start_Freq_textBox = new System.Windows.Forms.TextBox();
             this.End_Freq_textBox = new System.Windows.Forms.TextBox();
@@ -73,9 +73,15 @@
             this.chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.button_pulseMeter = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.groupBox_sParam = new System.Windows.Forms.GroupBox();
+            this.radioButton_S21 = new System.Windows.Forms.RadioButton();
+            this.radioButton_S22 = new System.Windows.Forms.RadioButton();
+            this.radioButton_S12 = new System.Windows.Forms.RadioButton();
+            this.radioButton_S11 = new System.Windows.Forms.RadioButton();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
+            this.groupBox_sParam.SuspendLayout();
             this.SuspendLayout();
             // 
             // label1
@@ -144,7 +150,7 @@
             // 
             // Send_param_button
             // 
-            this.Send_param_button.Location = new System.Drawing.Point(40, 321);
+            this.Send_param_button.Location = new System.Drawing.Point(40, 431);
             this.Send_param_button.Name = "Send_param_button";
             this.Send_param_button.Size = new System.Drawing.Size(75, 23);
             this.Send_param_button.TabIndex = 8;
@@ -417,20 +423,20 @@
             // 
             // chart1
             // 
-            chartArea1.AxisX.LabelStyle.Enabled = false;
-            chartArea1.AxisY.LabelStyle.Enabled = false;
-            chartArea1.Name = "ChartArea1";
-            this.chart1.ChartAreas.Add(chartArea1);
-            legend1.Name = "Legend1";
-            this.chart1.Legends.Add(legend1);
+            chartArea2.AxisX.LabelStyle.Enabled = false;
+            chartArea2.AxisY.LabelStyle.Enabled = false;
+            chartArea2.Name = "ChartArea1";
+            this.chart1.ChartAreas.Add(chartArea2);
+            legend2.Name = "Legend1";
+            this.chart1.Legends.Add(legend2);
             this.chart1.Location = new System.Drawing.Point(691, 40);
             this.chart1.Name = "chart1";
-            series1.ChartArea = "ChartArea1";
-            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastLine;
-            series1.IsVisibleInLegend = false;
-            series1.Legend = "Legend1";
-            series1.Name = "Series1";
-            this.chart1.Series.Add(series1);
+            series2.ChartArea = "ChartArea1";
+            series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastLine;
+            series2.IsVisibleInLegend = false;
+            series2.Legend = "Legend1";
+            series2.Name = "Series1";
+            this.chart1.Series.Add(series2);
             this.chart1.Size = new System.Drawing.Size(250, 177);
             this.chart1.TabIndex = 34;
             this.chart1.Text = "chart1";
@@ -449,11 +455,69 @@
             // 
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick_1);
             // 
+            // groupBox_sParam
+            // 
+            this.groupBox_sParam.Controls.Add(this.radioButton_S21);
+            this.groupBox_sParam.Controls.Add(this.radioButton_S22);
+            this.groupBox_sParam.Controls.Add(this.radioButton_S12);
+            this.groupBox_sParam.Controls.Add(this.radioButton_S11);
+            this.groupBox_sParam.Location = new System.Drawing.Point(40, 327);
+            this.groupBox_sParam.Name = "groupBox_sParam";
+            this.groupBox_sParam.Size = new System.Drawing.Size(181, 78);
+            this.groupBox_sParam.TabIndex = 36;
+            this.groupBox_sParam.TabStop = false;
+            this.groupBox_sParam.Text = "S Param";
+            // 
+            // radioButton_S21
+            // 
+            this.radioButton_S21.AutoSize = true;
+            this.radioButton_S21.Location = new System.Drawing.Point(18, 45);
+            this.radioButton_S21.Name = "radioButton_S21";
+            this.radioButton_S21.Size = new System.Drawing.Size(44, 17);
+            this.radioButton_S21.TabIndex = 3;
+            this.radioButton_S21.TabStop = true;
+            this.radioButton_S21.Text = "S21";
+            this.radioButton_S21.UseVisualStyleBackColor = true;
+            // 
+            // radioButton_S22
+            // 
+            this.radioButton_S22.AutoSize = true;
+            this.radioButton_S22.Location = new System.Drawing.Point(68, 23);
+            this.radioButton_S22.Name = "radioButton_S22";
+            this.radioButton_S22.Size = new System.Drawing.Size(44, 17);
+            this.radioButton_S22.TabIndex = 2;
+            this.radioButton_S22.TabStop = true;
+            this.radioButton_S22.Text = "S22";
+            this.radioButton_S22.UseVisualStyleBackColor = true;
+            // 
+            // radioButton_S12
+            // 
+            this.radioButton_S12.AutoSize = true;
+            this.radioButton_S12.Location = new System.Drawing.Point(68, 46);
+            this.radioButton_S12.Name = "radioButton_S12";
+            this.radioButton_S12.Size = new System.Drawing.Size(44, 17);
+            this.radioButton_S12.TabIndex = 1;
+            this.radioButton_S12.TabStop = true;
+            this.radioButton_S12.Text = "S12";
+            this.radioButton_S12.UseVisualStyleBackColor = true;
+            // 
+            // radioButton_S11
+            // 
+            this.radioButton_S11.AutoSize = true;
+            this.radioButton_S11.Location = new System.Drawing.Point(18, 22);
+            this.radioButton_S11.Name = "radioButton_S11";
+            this.radioButton_S11.Size = new System.Drawing.Size(44, 17);
+            this.radioButton_S11.TabIndex = 0;
+            this.radioButton_S11.TabStop = true;
+            this.radioButton_S11.Text = "S11";
+            this.radioButton_S11.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1096, 494);
+            this.Controls.Add(this.groupBox_sParam);
             this.Controls.Add(this.button_pulseMeter);
             this.Controls.Add(this.chart1);
             this.Controls.Add(this.startStopFreq_checkBox);
@@ -494,6 +558,8 @@
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).EndInit();
+            this.groupBox_sParam.ResumeLayout(false);
+            this.groupBox_sParam.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -542,6 +608,11 @@
         private System.Windows.Forms.DataVisualization.Charting.Chart chart1;
         private System.Windows.Forms.Button button_pulseMeter;
         private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.GroupBox groupBox_sParam;
+        private System.Windows.Forms.RadioButton radioButton_S21;
+        private System.Windows.Forms.RadioButton radioButton_S22;
+        private System.Windows.Forms.RadioButton radioButton_S12;
+        private System.Windows.Forms.RadioButton radioButton_S11;
     }
 }
 

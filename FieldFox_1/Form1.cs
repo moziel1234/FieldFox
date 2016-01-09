@@ -128,6 +128,7 @@ namespace FieldFox_1
             freqSpan_textBox.Text = "0";
             freqCenter_textBox.Enabled = false;
             freqSpan_textBox.Enabled = false;
+            radioButton_S11.Checked = true;
         }
 
         private void Send_param_button_Click(object sender, EventArgs e)
@@ -144,7 +145,8 @@ namespace FieldFox_1
 
                     Write("SYST:PRES;*OPC?");
                     Write("*IDN?");
-                    Write("CALC:PAR:DEF S21");
+                    string sParam = groupBox_sParam.Controls.OfType<RadioButton>().FirstOrDefault(n => n.Checked).Text;
+                    Write("CALC:PAR:DEF " + sParam);
                     if (startStopFreq_checkBox.Checked)
                     {
                         Write("SENS:FREQ:START " + (Convert.ToDouble(Start_Freq_textBox.Text) * 1e6).ToString());
@@ -425,6 +427,7 @@ namespace FieldFox_1
                     double delta = Math.Abs(max1 * 0.001);
                     chart1.ChartAreas[0].AxisY.Maximum = max1 + delta;
                     chart1.ChartAreas[0].AxisY.Minimum = min1 - delta;
+                    chartPulseTimerCounter = 0;
                 }
             }
 

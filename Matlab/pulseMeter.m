@@ -18,13 +18,24 @@ function [ ret_obj ] = pulseMeter(file_name)
     smoothed_data = smooth(smooth(amp,100),100);
     DataInv = 1.01*max(smoothed_data) - smoothed_data;
     [~,MinIdx] = findpeaks(DataInv, 'MinPeakDistance',1200);
-
+    mean_data = smooth(smoothed_data,round(mean(diff(MinIdx))));
+    homogen_data = smoothed_data - mean_data;
     if plotC
+        close all;
+        
         figure; plot(time_full,smooth(smooth(amp,5),5),'b'); hold on; plot(time_full,smoothed_data,'g');
         scatter(time_full(MinIdx),smoothed_data(MinIdx),'r');
+        
+        figure; plot(time_full,smoothed_data,'b'); hold on;        
+        plot(time_full,mean_data,'r');
+         
+        figure; plot(time_full, homogen_data); hold on; scatter(time_full(MinIdx),homogen_data(MinIdx),'r');
+        
     end
     ret_obj.time_full = time_full;
     ret_obj.smoothed_data = smoothed_data;
+    ret_obj.homogen_data = homogen_data;
+    ret_obj.MinIdx = MinIdx;
     ret_obj.first_meas_epoch = M(1,1);
 end
 
