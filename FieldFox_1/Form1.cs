@@ -11,6 +11,7 @@ using System.IO;
 using MccDaq;
 using System.Threading;
 using System.Diagnostics;
+using System.Media;
 
 
 namespace FieldFox_1
@@ -112,9 +113,9 @@ namespace FieldFox_1
         {
             tc.ReadTimeout = 10000; // 10 sec
 
-            Start_Freq_textBox.Text = "2";
-            End_Freq_textBox.Text = "6000";
-            Points_num_textBox.Text = "201";
+            Start_Freq_textBox.Text = "100";
+            End_Freq_textBox.Text = "200";
+            Points_num_textBox.Text = "10";
             IF_bandW_textBox.Text = "300";
             Avg_num_textBox.Text = "1";
             Sweep_radioButton.Checked = true;
@@ -128,7 +129,7 @@ namespace FieldFox_1
             freqSpan_textBox.Text = "0";
             freqCenter_textBox.Enabled = false;
             freqSpan_textBox.Enabled = false;
-            radioButton_S11.Checked = true;
+            radioButton_S21.Checked = true;
         }
 
         private void Send_param_button_Click(object sender, EventArgs e)
@@ -220,6 +221,7 @@ namespace FieldFox_1
 
             Write("MMEM:CDIR \"[INTERNAL]:\\\"");
             Write("MMEM:RDIR \"" + folderName + "\",\"recursive\"");
+            SystemSounds.Beep.Play();
         }
 
         void fieldFoxTimer_TimerElapsed(object sender, System.Timers.ElapsedEventArgs e)
@@ -436,6 +438,20 @@ namespace FieldFox_1
         private void timer1_Tick_1(object sender, EventArgs e)
         {
             updatePlot();
+        }
+
+        private void button_run_matlab_Click(object sender, EventArgs e)
+        {
+            // Create the MATLAB instance 
+            MLApp.MLApp matlab = new MLApp.MLApp();
+
+            // Change to the directory where the function is located 
+            matlab.Execute(@"cd('c:/Users/Boris/Documents/Visual Studio 2010/Projects/FieldFox_1/Matlab')");
+            string cmd = @"folderToObject('C:\\FieldFox\\" + folderName + @"')";
+            matlab.Execute(cmd);
+  
+
+
         }
 
         

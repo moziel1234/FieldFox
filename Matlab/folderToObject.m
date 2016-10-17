@@ -4,7 +4,7 @@ function [ ret_obj ] = folderToObject( folder_name )
     plotC = 1;
     smooth_time = 0.5; %seconds
     useRegularFunction = 1;
-    s_param = 'S11';
+    s_param = 'S21';
     %check if NAParam.dat exist
     if exist([folder_name,'\\NAParam.dat'], 'file') == 2
         %if exist read file and get the NA params.
@@ -31,15 +31,15 @@ function [ ret_obj ] = folderToObject( folder_name )
     for file_name = S
         ind = ind +1;
         if useRegularFunction
+            
+            data = read(rfdata.data,[folder_name,'\\',file_name{1}]);
+            freqs = data.freq/1e6;
             if ind==1
                 times = zeros(size(S));
                 amp_db = zeros(length(S),length(data.freq));
                 phase_deg = amp_db;
-            end
+            end     
             times(ind) = FileNameToMili(file_name{1});
-            data = read(rfdata.data,[folder_name,'\\',file_name{1}]);
-            freqs = data.freq/1e6;
-            
             % should be 21
             amp_db(ind,1:length(data.freq))=20*log10(abs(data.S_Parameters(2,1,:))); 
             phase_at_vec = reshape(data.S_Parameters(2,1,:),1, []);
@@ -60,8 +60,8 @@ function [ ret_obj ] = folderToObject( folder_name )
         
     end
     time_sec = (times-times(1))/1000;
-    amp_db_homo = amp_db - smooth(amp_db, find(time_sec>smooth_time,1))';
-    phase_deg_homo = phase_deg - smooth(phase_deg, find(time_sec>smooth_time,1))';
+    % amp_db_homo = amp_db - smooth(amp_db, find(time_sec>smooth_time,1))';
+    % phase_deg_homo = phase_deg - smooth(phase_deg, find(time_sec>smooth_time,1))';
     if plotC
         close all;
         set(0, 'DefaulttextInterpreter', 'none');
@@ -72,15 +72,15 @@ function [ ret_obj ] = folderToObject( folder_name )
         savefig(amp_fig,[folder_name,'\amp_fig']);
         savefig(phs_fig,[folder_name,'\phs_fig']);
         
-        figure; plot(time_sec,-25*amp_db_homo./(amp_db_homo-1));
+        % figure; plot(time_sec,-25*amp_db_homo./(amp_db_homo-1));
     end
     save([folder_name,'\data.mat'],'time_sec','amp_db','phase_deg','freqs','times');
     ret_obj.time_sec=time_sec;
     ret_obj.times=times;
     ret_obj.amp_db=amp_db;
-    ret_obj.amp_db_homog=-25*amp_db_homo./(amp_db_homo-1);
+    % ret_obj.amp_db_homog=-25*amp_db_homo./(amp_db_homo-1);
     ret_obj.phase_deg=phase_deg;
-    ret_obj.phase_deg_homo=phase_deg_homo;
+    % ret_obj.phase_deg_homo=phase_deg_homo;
     ret_obj.freqs=freqs;
 end
 
